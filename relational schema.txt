@@ -1,0 +1,126 @@
+CREATE TABLE user (
+user_id INTEGER UNIQUE,
+yelping_since DATE,
+average_stars FLOAT,
+user_tipcount INTEGER,
+fans INTEGER,
+First_name VARCHAR,
+PRIMARY KEY(user_id)
+);
+
+CREATE TABLE customer (
+First_name VARCHAR NOT NULL,
+id INTEGER REFERENCES user(user_id),
+PRIMARY KEY (first_name, id)
+);
+
+CREATE TABLE friends_with (
+User_id INTEGER,
+PRIMARY KEY(User_id),
+FOREIGN KEY(User_id) REFRENCES friends_with(User_id)
+);
+
+CREATE TABLE Tip (
+tip_id INTEGER UNIQUE,
+PRIMARY KEY(tip_id)
+);
+
+CREATE TABLE Category (
+Category_name VARCHAR NOT NULL,
+PRIMARY KEY(category_name)
+);
+
+CREATE TABLE Business (
+attribute VARCHAR[],
+Business_name VARCHAR NOT NULL,
+Business_tipcount INTEGER,
+Stars DECIMAL,
+Postcode INTEGER REFERENCES Zip(Postcode),
+Street_address VARCHAR,
+PRIMARY KEY(business_name, postcode)
+);
+
+CREATE TABLE City (
+City_name VARCHAR NOT NULL,
+state_name VARCHAR REFERENCES State(State_name),
+PRIMARY KEY (city_name, state_name),
+);
+
+CREATE TABLE Zip (
+Postcode INTEGER,
+PRIMARY KEY(postcode)
+);
+
+CREATE TABLE State (
+State_name VARCHAR,
+PRIMARY KEY(state_name)
+);
+
+CREATE TABLE named (
+user_id INTEGER,
+first_name VARCHAR,
+PRIMARY KEY (user_id, first_name),
+FOREIGN KEY(user_id) REFERENCES user(user_id),
+FOREIGN KEY(first_name) REFERENCES customer(first_name)
+);
+
+
+CREATE TABLE posts (
+user_id INTEGER,
+tip_id INTEGER,
+PRIMARY KEY (user_id, tip_id),
+FOREIGN KEY(user_id) REFERENCES user(user_id),
+FOREIGN KEY(first_name) REFERENCES tip(tip_id)
+);
+
+CREATE TABLE tipped(
+business_name VARCHAR,
+postcode INTEGER,
+tip_id INTEGER,
+PRIMARY KEY (business_name, postcode, tip_id),
+FOREIGN KEY (business_name) REFERENCES business(business_name),
+FOREIGN KEY (postcode) REFERENCES business(postcode),
+FOREIGN KEY (tip_id) REFERENCES tip(tip_id)
+);
+
+CREATE TABLE in_category(
+business_name VARCHAR,
+postcode INTEGER,
+category_name VARCHAR,
+PRIMARY KEY (business_name, postcode, category_name),
+FOREIGN KEY (business_name) REFERENCES business(business_name),
+FOREIGN KEY (postcode) REFERENCES business(postcode),
+FOREIGN KEY (category_name) REFERENCES category(category_name)
+);
+
+CREATE TABLE has_category(
+postcode INTEGER,
+category_name VARCHAR,
+PRIMARY KEY (postcode, category_name),
+FOREIGN KEY (postcode) REFERENCES zip(postcode),
+FOREIGN KEY (category_name) REFERENCES category(category_name)
+);
+
+CREATE TABLE in_state(
+city_name VARCHAR,
+state_name VARCHAR,
+PRIMARY KEY (city_name, state_name),
+FOREIGN KEY (state_name) REFERENCES state(state_name),
+FOREIGN KEY (city_name) REFERENCES city(city_name)
+);
+
+CREATE TABLE has_zip(
+city_name VARCHAR,
+postcode INTEGER,
+PRIMARY KEY (city_name, postcode),
+FOREIGN KEY (postcode) REFERENCES zip(postcode),
+FOREIGN KEY (city_name) REFERENCES city(city_name)
+);
+
+CREATE TABLE in_zip(
+business_name VARCHAR,
+postcode INTEGER,
+PRIMARY KEY (business_name, postcode),
+FOREIGN KEY (postcode) REFERENCES zip(postcode),
+FOREIGN KEY (business_name) REFERENCES business(business_name)
+);
