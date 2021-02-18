@@ -1,9 +1,24 @@
+#Importing Libraries and setting directory
+
 import os 
 import json
 import pandas as pd
+os.chdir('/Users/gregpedersen/Desktop/451Data')
 
+#ecessary Functions for completion. 
+
+
+# Source: Professor
 def cleanStr4SQL(s):
     return s.replace("'","`").replace("\n"," ")
+
+
+
+def flattenList(mylist):
+    listt = mylist[1]
+    lis = [(k, v) for k, v in listt.items()] #Source: https://www.geeksforgeeks.org/python-convert-dictionary-to-list-of-tuples/
+    return lis
+
 
 #Parse Business Data Fuction
 # Source (except hours and attributes information): Professor
@@ -13,42 +28,77 @@ def ParseBusinessData():
         outfile = open('business.txt', 'w')
         line = f.readline()
         count_line = 0
+        
+        #Creating a header to help when we read data into SQL
+        header = "Business ID, name, Address, State, City, Postal Code, Latitude, Longitude, Stars, Reviews, Open?, Categories, Attributes, Hours"
+        outfile.write(cleanStr4SQL(header)+'\n')
         while line:
             data = json.loads(line)
-            outfile.write(cleanStr4SQL(data['business_id'])+'\t') #business id
-            outfile.write(cleanStr4SQL(data['name'])+'\t') #name
-            outfile.write(cleanStr4SQL(data['address'])+'\t') #full_address            
-            outfile.write(cleanStr4SQL(data['state'])+'\t') #state            
-            outfile.write(cleanStr4SQL(data['city'])+'\t') #city
-            outfile.write(cleanStr4SQL(data['postal_code']) + '\t')  #zipcode            
-            outfile.write(str(data['latitude'])+'\t') #latitude     
-            outfile.write(str(data['longitude'])+'\t') #longitude            
-            outfile.write(str(data['stars'])+'\t') #stars            
-            outfile.write(str(data['review_count'])+'\t') #reviewcount            
-            outfile.write(str(data['is_open'])+'\t') #openstatus            
+            #added commas to separate values, in addition to tabs which were already there
+            outfile.write(cleanStr4SQL(data['business_id'])+','+'\t') #business id
+            outfile.write(cleanStr4SQL(data['name'])+',''\t') #name
+            outfile.write(cleanStr4SQL(data['address'])+','+'\t') #full_address            
+            outfile.write(cleanStr4SQL(data['state'])+','+'\t') #state            
+            outfile.write(cleanStr4SQL(data['city'])+','+'\t') #city
+            outfile.write(cleanStr4SQL(data['postal_code'])+','+'\t')  #zipcode            
+            outfile.write(str(data['latitude'])+','+'\t') #latitude     
+            outfile.write(str(data['longitude'])+','+'\t') #longitude            
+            outfile.write(str(data['stars'])+','+'\t') #stars            
+            outfile.write(str(data['review_count'])+','+'\t') #reviewcount            
+            outfile.write(str(data['is_open'])+','+'\t') #openstatus            
             
             categories = data["categories"].split(', ')            
-            outfile.write(str(categories)+'\t')  #category list
+            outfile.write(str(categories)+','+'\t')  #category list
             
             
             #Attributes
+            #This code doesn't do much, but it formats the data properly for the next lines so I kept it anyway
             empty = []
             attributes = data["attributes"]
             attributes2 = attributes.items()
             for element in attributes2:
-                if isinstance(element,dict):
-                    element2 = element.items()
-                    empty.append(element2)
-                else:
                     empty.append(element)
-                
-            outfile.write(str(empty)+'\t')
+                                
+            mylist = empty
+            mylist2 = mylist
+            
+            
+            
+            
+            #If the second value of an element of the list is a dictionary, convert the element to a list
+            #And flatten, add element to empty list x
+            x = list()
+            for item in mylist:
+                if isinstance(item[1], dict):        
+                    temp = list(item)
+                    temp2 = flattenList(temp)
+                    x = x+temp2
+            y = list()
+            
+            #Using a duplicate of the data, take out all values not containing a dictionary and append them to
+            #empty list y
+        
+            for item2 in mylist2:
+                if isinstance(item2[1], str): 
+                    y.append(item2)
+                    
+            #Combine lists and post to outfile
+            new = y + x
+            x2 = str(new)
+            x3 = x2[:-1]
+            x4 = x3[1:]
+            
+            outfile.write(str(x4)+','+'\t')
+            
                
             
             #Hours
+            
+            #Flatten Hours so instead of dictionary values, we have sublists
             hours = data['hours']
             hours2 = hours.items()
-            outfile.write(str(hours)+'\t')
+            lis = [(k,v) for k,v in lisst.items()]
+            outfile.write(str(lis)+'\t')
             
             
             outfile.write('\n');
@@ -58,7 +108,8 @@ def ParseBusinessData():
     print(count_line)
     outfile.close()
     f.close()
-              
+    
+
 #Parse User Data Function
 
 def parseUserData():
@@ -66,23 +117,27 @@ def parseUserData():
         outfile = open('user.txt', 'w')
         line = f.readline()
         count_line = 0
+        header = "User ID, name, Yelping Since, Tipcount, Fans, Average Stars, Funny, Useful, Cool, Friends"
+        outfile.write(cleanStr4SQL(header)+'\n')
         while line:
             data = json.loads(line)
-            outfile.write(cleanStr4SQL(data['user_id'])+'\t') #business id
-            outfile.write(cleanStr4SQL(data['name'])+'\t') #Add letter before
-            outfile.write(cleanStr4SQL(data['yelping_since'])+'\t') #business id
+            outfile.write(cleanStr4SQL(data['user_id'])+','+'\t') #User_id
+            outfile.write(cleanStr4SQL(data['name'])+','+'\t')  #name
+            outfile.write(cleanStr4SQL(data['yelping_since'])+','+'\t') #Start date
             
             
             #tipcount
+            
+            #A lot of these are just being extracted, converted fron int to str, and written to outfile
             tip = data['tipcount']
             tip2 = str(tip)
-            outfile.write(cleanStr4SQL(tip2)+'\t')
+            outfile.write(cleanStr4SQL(tip2)+','+'\t')
             
             #Fan
             fan = data['fans']
             fan2 = str(fan)
             
-            outfile.write(cleanStr4SQL(fan2)+'\t')
+            outfile.write(cleanStr4SQL(fan2)+','+'\t')
             
             #Average Stars
             star = str(data['average_stars'])
@@ -90,17 +145,17 @@ def parseUserData():
             
             #Funny,Useful,Cool
             funny = str(data['funny'])
-            outfile.write(cleanStr4SQL(funny)+'\t')
+            outfile.write(cleanStr4SQL(funny)+','+'\t')
 
             useful = str(data['useful'])
-            outfile.write(cleanStr4SQL(useful)+'\t')
+            outfile.write(cleanStr4SQL(useful)+','+'\t')
             
             cool = str(data['cool'])
-            outfile.write(cleanStr4SQL(cool)+'\t')
+            outfile.write(cleanStr4SQL(cool)+','+'\t')
             
             #Friends
             friends = str(data['friends'])
-            outfile.write(cleanStr4SQL(friends)+'\t')
+            outfile.write(cleanStr4SQL(friends)+','+'\t')
             
             
             
@@ -112,23 +167,27 @@ def parseUserData():
     print(count_line)
     outfile.close()
     f.close() 
-    
+                
+            
+            
 def parseTipData():
     with open('yelp_tip.JSON','r') as f:
         outfile = open('tip.txt', 'w')
         line = f.readline()
         count_line = 0
+        header = "Business ID, Date, Likes, Comment, User ID"
+        outfile.write(cleanStr4SQL(header)+'\n')
         while line:
             data = json.loads(line)
-            outfile.write(cleanStr4SQL(data['business_id'])+'\t') #business id
-            outfile.write(cleanStr4SQL(data['date'])+'\t') #business id
+            outfile.write(cleanStr4SQL(data['business_id'])+','+'\t') 
+            outfile.write(cleanStr4SQL(data['date'])+','+'\t')
             
             likes = str(data['likes'])
-            outfile.write(cleanStr4SQL(likes)+'\t')
+            outfile.write(cleanStr4SQL(likes)+','+'\t')
             
             
-            outfile.write(cleanStr4SQL(data['text'])+'\t') #business id
-            outfile.write(cleanStr4SQL(data['user_id'])+'\t') #business id
+            outfile.write(cleanStr4SQL(data['text'])+','+'\t') 
+            outfile.write(cleanStr4SQL(data['user_id'])+','+'\t') 
 
             outfile.write('\n');
             line = f.readline()
@@ -138,9 +197,36 @@ def parseTipData():
     outfile.close()
     f.close() 
     
-parseTipData()
+    
+def parseCheckData():
+    with open('yelp_checkin.JSON','r') as f:
+        outfile = open('checkin.txt', 'w')
+        line = f.readline()
+        count_line = 0
+        header = "Business ID, Dates"
+        outfile.write(cleanStr4SQL(header)+'\n')
+        while line:
+            data = json.loads(line)
+            outfile.write(cleanStr4SQL(data["business_id"])+','+'\t')
+            outfile.write(cleanStr4SQL(data["date"])+','+'\t')
+
             
             
+            outfile.write('\n');
+            line = f.readline()
+            count_line +=1
             
+    print(count_line)
+    outfile.close()
+    f.close() 
+
             
-            
+def main():
+    ParseBusinessData()
+    parseUserData()
+    parseTipData()
+    parseCheckData()
+
+
+main()
+
