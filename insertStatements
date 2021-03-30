@@ -1,0 +1,203 @@
+#Importing Libraries and setting directory
+
+import os 
+import json
+import psycopg2
+import pandas as pd
+os.chdir('/Users/gregpedersen/Desktop/451Data') #Change to your directory
+
+#necessary Functions for completion. 
+
+
+# Source: Professor
+def cleanStr4SQL(s):
+    return s.replace("'","`").replace("\n"," ")
+
+
+
+def flattenList(mylist):
+    listt = mylist[1]
+    lis = [(k, v) for k, v in listt.items()] #Source: https://www.geeksforgeeks.org/python-convert-dictionary-to-list-of-tuples/
+    return lis
+
+def int2BoolStr(value):
+    if value == 0:
+        return 'False'
+    else:
+        return 'True'
+    
+def getDict(my_dict, existing_dict):
+    for k, v in my_dict.items():
+        if not isinstance(v, dict):
+            existing_dict[k] = v
+        else:
+            getDict(v, existing_dict)
+    return existing_dict
+
+
+def joinLists(list1, list2):
+    mylist = []
+    new1 = ""
+    new2 = ""
+    for x in list1:
+        new1+= x
+    for y in list2:
+        new2+= y
+        
+    mylist.append(new1)
+    mylist.append(new2)
+    
+    return(mylist)
+    
+    
+#################################################WORKING BUSINESS FUNCTION########################################
+
+def insert2BusinessTable():
+    with open('yelp_business.JSON','r') as f:
+        line = f.readline()
+        count_line = 0
+        
+        try:
+            conn = psycopg2.connect("dbname = '451Project' user = 'gregpedersen' host = 'localhost' password = 'gregory99'")
+        except:
+            print('Unable to connect to the database!')
+        cur = conn.cursor()
+        while line:
+            
+            data = json.loads(line)
+            try:
+                cur.execute("INSERT INTO business (business_id, business_name, address, state, city, zipcode, latitude, longitude, stars, reviews, is_open)" + " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (data['business_id'],cleanStr4SQL(data["name"]), cleanStr4SQL(data['address']), cleanStr4SQL(data['state']), cleanStr4SQL(data['city']), cleanStr4SQL(data['postal_code']), data['latitude'], data['longitude'], data['stars'], data['review_count'], bool(data['is_open'])))   
+            except Exception as e:
+                print("Insert to business failed!", e)
+            conn.commit()
+            line = f.readline()  
+        
+            count_line += 1
+                
+                            
+        cur.close()
+        conn.close()
+    print(count_line)
+    f.close()
+                            
+insert2BusinessTable()                    
+
+
+##########################################WORKING CATEGORIES FUNCTION#################################################
+def insertCategories():
+    with open('yelp_business.JSON', 'r') as f:
+        line = f.readline()
+        count_line = 0
+        try:
+            conn = psycopg2.connect("dbname = '451Project' user = 'gregpedersen' host = 'localhost' password = 'gregory99'")
+        except:
+            print('Unable to connect to the database!')
+        cur = conn.cursor()
+        
+        
+        while line:
+            data = json.loads(line)
+            categories = list(data['categories'].split(', '))
+            for ele in range(len(categories)):        
+                try:
+                    cur.execute("INSERT INTO categories (category_name, business_id)" + " VALUES (%s, %s)", (cleanStr4SQL(categories[ele]), cleanStr4SQL(data['business_id']))) 
+                except Exception as e:
+                    print("Insert to user failed!", e)
+                #print(categories[ele], data['business_id'])
+            conn.commit()    
+            line = f.readline()
+            count_line += 1
+        
+        cur.close()
+        conn.close()
+            
+    print(count_line)
+    f.close()
+    
+
+insertCategories()
+
+############################################Working Attribute Function#############################################
+
+def insert2Att():
+    with open('yelp_business.JSON','r')as f:
+        line = f.readline()
+        count_line = 0
+        try:
+            conn = psycopg2.connect("dbname = '451Project' user = 'gregpedersen' host = 'localhost' password = 'gregory99'")
+        except:
+            print('Unable to connect to the database!')
+        cur = conn.cursor()
+        
+        while line:
+            data = json.loads(line)
+            
+            #Attributes
+            #This code doesn't do much, but it formats the data properly for the next lines so I kept it anyway
+            empty = []
+            attributes = data["attributes"]
+            emptyDict = {}
+            
+            
+            #mylist = [(k, v) for k, v in attributes.items()]
+            update = getDict(attributes, emptyDict)
+            mylist = [(k, v) for k, v in update.items()]
+
+            for element in mylist:
+                try:
+                    cur.execute("INSERT INTO attributes (attr_name, value, business_id)" + " VALUES (%s, %s, %s)", (cleanStr4SQL(element[0]), cleanStr4SQL(element[1]), cleanStr4SQL(data['business_id']))) 
+                except Exception as e:
+                    print("Insert to user failed!", e)
+                #print(data['business_id'], element[0], element[1])
+            
+            conn.commit()    
+            line = f.readline()
+            count_line += 1
+            
+        cur.close()
+        conn.close()          
+        f.close()
+        
+insert2Att() 
+
+
+#################################################Insert Hours Function#############################################
+
+def insert2Hours():
+    with open('yelp_business.JSON','r')as f:
+        line = f.readline()
+        count_line = 0
+        try:
+            conn = psycopg2.connect("dbname = '451Project' user = 'gregpedersen' host = 'localhost' password = 'gregory99'")
+        except:
+            print('Unable to connect to the database!')
+        cur = conn.cursor()
+        
+        while line:
+            data = json.loads(line)
+            hours = data['hours']
+            mylist = [(k, v) for k, v in hours.items()]
+            for item in mylist:
+                newlist = list(item[1])
+                temp = newlist.index('-')
+                temp1 = newlist[:temp]
+                temp2 = newlist[temp:]
+                temp2.pop(0)
+                
+                times = joinLists(temp1, temp2)
+                try:
+                    cur.execute("INSERT INTO hours (day_of_week, business_open, business_closed, business_id)" + " VALUES (%s, %s, %s, %s)", (item[0], times[0], times[1], cleanStr4SQL(data['business_id']))) 
+                except Exception as e:
+                    print("Insert to user failed!", e)
+            
+            line = f.readline()
+            count_line += 1
+                
+            
+        conn.commit()   
+        cur.close()
+        conn.close()          
+        f.close()
+        
+insert2Hours()
+
