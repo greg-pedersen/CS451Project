@@ -55,7 +55,7 @@ def insert2UserTable():
         #connect to yelpdb database on postgres server using psycopg2
         try:
             #TODO: update the database name, username, and password
-            conn = psycopg2.connect("dbname='term project' user='postgres' host='localhost' password='danak2000'")
+            conn = psycopg2.connect("dbname='451Project' user='gregpedersen' host='localhost' password='gregory99'")
         except:
             print('Unable to connect to the database!')
         cur = conn.cursor()
@@ -92,7 +92,7 @@ def insert2FriendTable():
         #connect to yelpdb database on postgres server using psycopg2
         try:
             #TODO: update the database name, username, and password
-            conn = psycopg2.connect("dbname='term project' user='postgres' host='localhost' password='danak2000'")
+            conn = psycopg2.connect("dbname='451Project' user='gregpedersen' host='localhost' password='gregory99'")
         except:
             print('Unable to connect to the database!')
         cur = conn.cursor()
@@ -126,7 +126,7 @@ def insert2TipTable():
         #connect to yelpdb database on postgres server using psycopg2
         try:
             #TODO: update the database name, username, and password
-            conn = psycopg2.connect("dbname='term project' user='postgres' host='localhost' password='danak2000'")
+            conn = psycopg2.connect("dbname='451Project' user='gregpedersen' host='localhost' password='gregory99'")
         except:
             print('Unable to connect to the database!')
         cur = conn.cursor()
