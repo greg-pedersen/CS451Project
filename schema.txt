@@ -1,137 +1,80 @@
 CREATE TABLE Business (
-
 Business_Id VARCHAR NOT NULL,
-
 Business_Name VARCHAR NOT NULL,
-
 City varchar,
-
 State varchar,
-
 Zipcode Integer,
-
 Latitude DECIMAL(10,8),
-
 Longitude DECIMAL(11,8),
-
 Address varchar,
-
 NumCheckins INTEGER DEFAULT 0,
-
 NumTips INTEGER DEFAULT 0,
-
-Is_open VARCHAR,
-
+Is_open BOOLEAN,
 Stars FlOAT,
-
+Reviews INTEGER,
 PRIMARY KEY(Business_Id)
-
 );
 
 CREATE TABLE users(
-
 Userid VARCHAR NOT NULL,
-
 Average_Stars FLOAT,
-
 yelping_since DATE,
-
 UserName VARCHAR,
-
 TipCount INTEGER DEFAULT 0,
-
 TotalLikes INTEGER DEFAULT 0,
-
 fans INTEGER,
-
 User_Latitude DECIMAL(10,8),
-
 User_Longitude DECIMAL(11,8),
-
 PRIMARY KEY(UserId )
-
 );
 
 CREATE TABLE Tip (
-
 TipDate TIMESTAMP,
-
 TipText VARCHAR,
-
 Likes INTEGER DEFAULT 0,
-
 Userid VARCHAR,
-
 Businessid VARCHAR,
-
 PRIMARY KEY(TipDate,Userid),
-
 Foreign key (Userid) references users(Userid)
-
 );
 
 CREATE TABLE Categories (
-
 Category_Name VARCHAR,
-
 Primary Key(Category_Name, Business_Id),
-
-Business_Id Integer,
-
+Business_Id VARCHAR,
 FOREIGN KEY (Business_Id) references Business(Business_Id)
-
 );
 
-CREATE TABLE Atrributes (
-
+CREATE TABLE Attributes (
 Attr_name VARCHAR,
-
-Value FLOAT,
-
-Business_Id Integer,
-
+Value VARCHAR,
+Business_Id VARCHAR,
 primary key (Attr_name, Business_Id),
-
 FOREIGN KEY (Business_Id) references Business(Business_Id)
-
 );
 
 CREATE TABLE Hours (
-
-Day_Of_Week DATE,
-
-Business_Closed VARCHAR,
-
-Business_Open VARCHAR,
-
-Business_Id Integer,
-
-Primary Key (Day_Of_Week),
-
+Day_Of_Week VARCHAR,
+Business_Closed time,
+Business_Open time,
+Business_Id VARCHAR,
 FOREIGN KEY (Business_Id) references Business(Business_Id)
-
 );
 
 CREATE TABLE Checkins (
-
-CheckIn_Date DATE,
-
-Business_Id Integer,
-
-primary key (CheckIn_Date),
-
+checkIn_year int,
+checkin_month int,
+checkin_day int,
+checkin_time time,
+Business_Id VARCHAR,
 FOREIGN KEY (Business_Id) references Business(Business_Id)
-
 );
 
 CREATE TABLE Friend (
-
 Userid VARCHAR,
 Friendid VARCHAR,
-
 PRIMARY KEY(Userid, Friendid),
-
 FOREIGN KEY(Userid) references users(Userid),
 FOREIGN KEY(Friendid) references users(Userid)
-
 );
+
