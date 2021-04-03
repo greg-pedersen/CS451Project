@@ -58,6 +58,7 @@ Day_Of_Week VARCHAR,
 Business_Closed time,
 Business_Open time,
 Business_Id VARCHAR,
+PRIMARY KEY (Business_Id, day_of_week),
 FOREIGN KEY (Business_Id) references Business(Business_Id)
 );
 
@@ -67,6 +68,7 @@ checkin_month int,
 checkin_day int,
 checkin_time time,
 Business_Id VARCHAR,
+PRIMARY KEY (Business_Id, checkin_year, checkin_month, checkin_day, checkin_time),
 FOREIGN KEY (Business_Id) references Business(Business_Id)
 );
 
